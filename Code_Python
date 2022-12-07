@@ -1,0 +1,153 @@
+# Group 1
+index2 = 0
+index = 0
+C1 = ""
+C2 = ""
+Custom2 = 0
+Custom = 0
+
+keyboard.start_keyboard_service()
+mouse.start_mouse_service()
+bluetooth.start_accelerometer_service()
+media.start_media_service()
+bluetooth.start_uart_service()
+grove.init_gesture()
+List = [keyboard.keys(keyboard._Key.UP),
+    keyboard.keys(keyboard._Key.DOWN),
+    keyboard.keys(keyboard._Key.ESCAPE),
+    keyboard.keys(keyboard._Key.TAB)]
+List_length = len(List)
+def on_gesture_down():
+    media.send_code(media.keys(media._MediaKey.VOL_DOWN))
+grove.on_gesture(GroveGesture.DOWN, on_gesture_down)
+
+def on_gesture_right():
+    if pins.digital_read_pin(DigitalPin.P1) == 1:
+        keyboard.send_string(keyboard.keys(keyboard._Key.RIGHT))
+    else:
+        media.send_code(media.keys(media._MediaKey.NEXT))
+grove.on_gesture(GroveGesture.RIGHT, on_gesture_right)
+
+def Custom_Start():
+    global Custom, Custom2
+    if input.button_is_pressed(Button.AB):
+        basic.show_leds("""
+            . . . # #
+                        . . # # #
+                        . # # # #
+                        . # # . .
+                        # . . . .
+        """)
+        Custom += 1
+        Custom2 += 1
+
+def my_function():
+    mouse.click()
+    basic.pause(100)
+    mouse.click()
+buttonClicks.on_button_double_clicked(buttonClicks.AorB.A, my_function)
+
+def on_logo_long_pressed():
+    keyboard.send_string("" + keyboard.modifiers(keyboard._Modifier.WINDOWS) + "l")
+input.on_logo_event(TouchButtonEvent.LONG_PRESSED, on_logo_long_pressed)
+
+def on_button_pressed_a():
+    mouse.click()
+input.on_button_pressed(Button.A, on_button_pressed_a)
+
+def on_gesture_tilt_left():
+    if pins.digital_read_pin(DigitalPin.P2) == 1:
+        keyboard.send_string("" + keyboard.modifiers(keyboard._Modifier.CONTROL) + "-")
+input.on_gesture(Gesture.TILT_LEFT, on_gesture_tilt_left)
+
+def on_gesture_clockwise():
+    media.send_code(media.keys(media._MediaKey.MUTE))
+grove.on_gesture(GroveGesture.CLOCKWISE, on_gesture_clockwise)
+
+def on_gesture_up():
+    media.send_code(media.keys(media._MediaKey.VOL_UP))
+grove.on_gesture(GroveGesture.UP, on_gesture_up)
+
+def on_gesture_forward():
+    media.send_code(media.keys(media._MediaKey.PLAY_PAUSE))
+grove.on_gesture(GroveGesture.FORWARD, on_gesture_forward)
+
+def on_gesture_left():
+    if pins.digital_read_pin(DigitalPin.P1) == 1:
+        keyboard.send_string(keyboard.keys(keyboard._Key.LEFT))
+    else:
+        media.send_code(media.keys(media._MediaKey.PREVIOUS))
+grove.on_gesture(GroveGesture.LEFT, on_gesture_left)
+
+def on_gesture_screen_down():
+    if pins.digital_read_pin(DigitalPin.P2) == 1:
+        keyboard.send_string("" + keyboard.modifiers(keyboard._Modifier.WINDOWS) + keyboard.keys(keyboard._Key.TAB))
+input.on_gesture(Gesture.SCREEN_DOWN, on_gesture_screen_down)
+
+def on_button_pressed_b():
+    mouse.right_click()
+input.on_button_pressed(Button.B, on_button_pressed_b)
+
+def on_gesture_shake():
+    if pins.digital_read_pin(DigitalPin.P1) == 1:
+        keyboard.send_string("" + keyboard.modifiers(keyboard._Modifier.CONTROL) + "r")
+input.on_gesture(Gesture.SHAKE, on_gesture_shake)
+
+def on_gesture_anticlockwise():
+    if pins.digital_read_pin(DigitalPin.P1) == 1:
+        keyboard.send_string(C2)
+    else:
+        keyboard.send_string(C1)
+grove.on_gesture(GroveGesture.ANTICLOCKWISE, on_gesture_anticlockwise)
+
+def on_gesture_tilt_right():
+    if pins.digital_read_pin(DigitalPin.P2) == 1:
+        keyboard.send_string("" + keyboard.modifiers(keyboard._Modifier.CONTROL) + "=")
+input.on_gesture(Gesture.TILT_RIGHT, on_gesture_tilt_right)
+
+def on_logo_pressed():
+    keyboard.send_string(keyboard.keys(keyboard._Key.ENTER))
+input.on_logo_event(TouchButtonEvent.PRESSED, on_logo_pressed)
+
+
+
+def on_forever():
+    global index, C1, Custom2, index2, C2
+    Custom_Start()
+    if Custom == 1 and Custom2 == 1:
+        basic.show_number(index)
+        if input.is_gesture(Gesture.TILT_RIGHT) and index < List_length - 1:
+            index += 1
+        if input.is_gesture(Gesture.TILT_LEFT) and index > 0:
+            index += -1
+        if input.is_gesture(Gesture.LOGO_DOWN):
+            C1 = List[index]
+            basic.show_string("" + (C1))
+            Custom2 = 0
+    elif Custom == 2 and Custom2 == 1:
+        basic.show_number(index2)
+        if input.is_gesture(Gesture.TILT_RIGHT) and index2 < List_length - 1:
+            index2 += 1
+        if input.is_gesture(Gesture.TILT_LEFT) and index2 > 0:
+            index2 += -1
+        if input.is_gesture(Gesture.LOGO_DOWN):
+            C2 = List[index2]
+            basic.show_string("" + (C2))
+            Custom2 = 2
+    if input.is_gesture(Gesture.LOGO_UP) and pins.digital_read_pin(DigitalPin.P2) == 1:
+        mouse.scroll(1)
+    if input.is_gesture(Gesture.LOGO_DOWN) and pins.digital_read_pin(DigitalPin.P2) == 1:
+        mouse.scroll(-1)
+    if input.button_is_pressed(Button.A) and pins.digital_read_pin(DigitalPin.P2) == 1:
+        mouse.click()
+    if pins.digital_read_pin(DigitalPin.P1) == 1:
+        if input.is_gesture(Gesture.TILT_RIGHT):
+            mouse.movexy(10, 0)
+        if input.is_gesture(Gesture.TILT_LEFT):
+            mouse.movexy(-10, 0)
+        if input.is_gesture(Gesture.LOGO_UP):
+            mouse.movexy(0, 10)
+        if input.is_gesture(Gesture.LOGO_DOWN):
+            mouse.movexy(0, -10)
+basic.forever(on_forever)
+
